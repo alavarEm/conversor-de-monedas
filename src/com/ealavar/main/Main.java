@@ -1,54 +1,40 @@
 package com.ealavar.main;
 
-import com.ealavar.model.Moneda;
-import com.ealavar.model.MonedaOmdb;
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-
+import com.ealavar.model.Conversor;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        Scanner lectura = new Scanner(System.in);
-        System.out.println("*****");
-        System.out.println("Bienvenido al conversor de moneda");
-        System.out.println("1- Dolar => peso argentino");
-        System.out.println("2- Peso argentino => dolar");
-        System.out.println("3- Salir");
-        System.out.println("Elija una opcion valida:");
-        var moneda= lectura.nextInt(); //Es una variable que va a almacenar la opcion que elija el usuario
-        var cantidad= lectura.nextDouble(); //Es una variable que va a almacenar la cantidad a convertir
-
-        String direccion= "https://v6.exchangerate-api.com/v6/1bc73600ef3a698f9e2651f7/latest/USD";
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(direccion))
-                .build();
-
-        HttpResponse<String> response = client
-                .send(request, HttpResponse.BodyHandlers.ofString());
-
-        String json = response.body();//Esta variable almacena la peticion
-        //System.out.println(json); Imprime todo lo que trae la peticion
-
-        Gson gson = new Gson();
-
-        JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        JsonObject conversionRates = jsonObject.getAsJsonObject("conversion_rates");
-        System.out.println(conversionRates.toString());
-
-        double euro= conversionRates.get("EUR").getAsDouble();
-        double conversion= euro*cantidad;
-        System.out.println("Tasa de conversion de dolar a euro: "+conversion);
-
-
-
+        int opcion;
+        double cantidad;
+        do{
+            Scanner lectura = new Scanner(System.in);
+            Conversor conversor = new Conversor();
+            conversor.menuConversor();
+            opcion = lectura.nextInt(); //Almacena la opcion que elija el usuario
+            if(opcion==7){
+                break;
+            }else {
+                System.out.println("Ingrese el valor que desea convertir:");
+                cantidad = lectura.nextDouble(); //Almacena la cantidad a convertir
+                double resultado;
+                String money = null;
+                switch (opcion) {
+                    case 1, 3, 5:
+                        money = conversor.asignarMoneda(opcion);
+                        resultado = conversor.convertirMoneda(cantidad, opcion, money);
+                        System.out.println(cantidad + " USD equivalen a " + resultado + " " + money);
+                        break;
+                    case 2, 4, 6:
+                        money = conversor.asignarMoneda(opcion);
+                        resultado = conversor.convertirADolar(cantidad, opcion, money);
+                        System.out.println(cantidad + " " + money + " equivalen a " + resultado + " USD");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }while(opcion!=7);
     }
 }
